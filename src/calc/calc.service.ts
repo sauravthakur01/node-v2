@@ -10,31 +10,32 @@ export class CalcService {
       throw new BadRequestException('Invalid expression provided');
     }
 
-    const tokens = expression.split(/([+\-*/])/).map(token => token.trim());
+    const elements = expression.split(/([+\-*/])/).map(token => token.trim());
 
-    let intermediateTokens = [];
+    let processedElements = [];
     let i = 0;
-    while (i < tokens.length) {
-      if (tokens[i] === '*' || tokens[i] === '/') {
-        const operator = tokens[i];
-        const prevValue = parseFloat(intermediateTokens.pop());
-        const nextValue = parseFloat(tokens[++i]);
+
+    while (i < elements.length) {
+      if (elements[i] === '*' || elements[i] === '/') {
+        const operator = elements[i];
+        const prevValue = parseFloat(processedElements.pop());
+        const nextValue = parseFloat(elements[++i]);
         if (isNaN(nextValue)) {
           throw new BadRequestException('Invalid expression provided');
         }
         const result = operator === '*' ? prevValue * nextValue : prevValue / nextValue;
-        intermediateTokens.push(result.toString());
+        processedElements.push(result.toString());
       } else {
-        intermediateTokens.push(tokens[i]);
+        processedElements.push(elements[i]);
       }
       i++;
     }
 
-    let result = parseFloat(intermediateTokens[0]);
+    let result = parseFloat(processedElements[0]);
     
-    for (let j = 1; j < intermediateTokens.length; j += 2) {
-      const operator = intermediateTokens[j];
-      const nextValue = parseFloat(intermediateTokens[j + 1]);
+    for (let j = 1; j < processedElements.length; j += 2) {
+      const operator = processedElements[j];
+      const nextValue = parseFloat(processedElements[j + 1]);
       if (isNaN(nextValue)) {
         throw new BadRequestException('Invalid expression provided');
       }
